@@ -16,13 +16,26 @@ jobs:
       steps:
         - checkout
         # Run your orb's commands to validate them.
-        - calculator/greet
+        - calculator/add:
+            numA: 2
+            numB: 5
+        - run:
+            name: Should Equal 7
+            command: grep -xq 7 /tmp/ADD_RESULT.txt
 workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
       - command-tests:
           filters: *filters
+      - calculator/add:
+          filters: *filters
+          numA: 2
+          numB: 5
+          post-steps:
+            - run:
+                name: Should Equal 7
+                command: grep -xq 7 /tmp/ADD_RESULT.txt
       - orb-tools/pack:
           filters: *filters
       - orb-tools/publish:
